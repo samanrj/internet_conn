@@ -5,8 +5,8 @@ MAINTAINER Saman Rajaei
 #
 ### we'll do a multi-stage build here by first resolving dependencies from
 ### the requirements file so Docker can cache them in the base+1 layer,
-### while this won't matter much for a project this size, it helps
-### significantly reduce the development cycle when doing local testing
+### while this won't matter much for end prod image (or at all for a project this size),
+### it helps significantly reduce the development cycle when doing local testing
 #
 
 COPY requirements.txt app/
@@ -19,6 +19,7 @@ RUN pip install -r requirements.txt
 ### we didn't break anything
 #
 COPY . app/
+WORKDIR app/
 LABEL stage=test
 RUN pytest
 

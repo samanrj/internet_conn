@@ -1,3 +1,4 @@
+sockets>=1.0.0
 pytest>=3.0.7
 tox>=2.7.0
 logzero  # see github.com/metachris/logzero
