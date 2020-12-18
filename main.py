@@ -9,7 +9,7 @@ __license__ = "MIT"
 
 import errno, os, socket, time
 from logzero import logger
-from telnetlib import Telnet
+# from telnetlib import Telnet
 
 """ load in env vars, set sensible defaults for it to need minimal config to run """
 # reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
@@ -23,7 +23,8 @@ preferred_port = 80
 how_frequently_secs = 3
 
 """
-Right, skeleton of the function stolen from this answer: https://stackoverflow.com/a/33117579, I quite liked the thinking behind:
+Right, skeleton of the function stolen from this answer: https://stackoverflow.com/a/33117579 and added my own tweaks to it.
+I quite liked the thinking behind:
 
     "... Avoid DNS resolution (we will need an IP that is well-known and guaranteed to be available for most of the time)
      Avoid application layer connections (connecting to an HTTP/FTP/IMAP service)
@@ -39,8 +40,15 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
     time.sleep(how_frequently_secs)
     try:
         socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((host, port))
+
+        # socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         logger.info('Was able to create outbound socket, internet ok. \n')
+
+        # de-allocate the resource
+        s.close()
+
         return True
 
     except socket.error as so_ex:
@@ -73,11 +81,13 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         else:
             logger.info('Woah... don\'t know about this one I\'m afraid... \n')
 
+        s.close()
         return False
 
     except socket.timeout as to_ex:
         logger.error('socket faced timeout exception: ' + str(to_ex))
         logger.info('Similarly, check whether a new request reaches it. Otherwise no action here really. \n')
+        s.close()
         return False
 
     # following won't really apply here.
