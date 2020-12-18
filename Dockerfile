@@ -33,4 +33,4 @@ RUN pytest
 #
 ### now execute the main
 #
-ENTRYPOINT ["/bin/bash", "-c", "python ./main.py"]
+ENTRYPOINT ["/bin/bash", "-c", "python ./src/main.py"]

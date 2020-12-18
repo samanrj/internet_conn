@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""
-Module Docstring
-"""
 
 __author__ = "Saman Rajaei"
 __version__ = "0.1.0"
@@ -9,13 +6,14 @@ __license__ = "MIT"
 
 import errno, os, socket, sys, time
 from logzero import logger
-# from telnetlib import Telnet
 
-""" load in env vars, set sensible defaults for it to need minimal config to run """
-# reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
-# preferred_host = os.getenv('_PREFERRED_HOST', '1.1.1.1')
-# preferred_port = os.getenv('_PREFERRED_PORT', 80)
-## preferred_port = int(os.environ['_PREFERRED_PORT'])
+""" load in env vars, set sensible defaults for it to need minimal config to run (check Known Issues in README)
+reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
+preferred_host = os.getenv('_PREFERRED_HOST', '1.1.1.1')
+preferred_port = os.getenv('_PREFERRED_PORT', 80)
+# preferred_port = int(os.environ['_PREFERRED_PORT'])
+how_frequently_secs = os.getenv('_CHECK_FREQUENCY_SECS', 1)
+"""
 
 reuqest_timeout_secs = 5
 preferred_host = '1.1.1.1'
@@ -45,7 +43,6 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
 
-        # socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         logger.info('Was able to create outbound socket, internet ok. \n')
 
         return True
@@ -93,8 +90,9 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         logger.info('Similarly, check whether a new request reaches it. Otherwise no action here really. \n')
 
     finally:
-        # de-allocate the resource
-        s.close()
+        if s is not None:
+            # de-allocate the resource            
+            s.close()
 
     # following won't really apply here.
     # except socket.herror as he_ex:
