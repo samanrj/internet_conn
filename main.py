@@ -46,16 +46,13 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         # socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
         logger.info('Was able to create outbound socket, internet ok. \n')
 
-        # de-allocate the resource
-        s.close()
-
         return True
 
     except socket.error as so_ex:
         logger.error('socket faced an exception, high level: ' + str(so_ex))
 
-        # got below line from https://stackoverflow.com/questions/5161167/python-handling-specific-error-codes
-        # cleaner than messing with the string itself IMO
+        # got first line from https://stackoverflow.com/questions/5161167/python-handling-specific-error-codes
+        # extended it to other potentual causes - cleaner than messing with the string itself IMO
         if so_ex.errno == errno.ECONNREFUSED:
             logger.info('Unlikely that remote host has gone down therefore probably internet connectivity issue, check with a ping or webpage check to ensure. \n')
 
@@ -81,14 +78,16 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         else:
             logger.info('Woah... don\'t know about this one I\'m afraid... \n')
 
-        s.close()
         return False
 
     except socket.timeout as to_ex:
         logger.error('socket faced timeout exception: ' + str(to_ex))
         logger.info('Similarly, check whether a new request reaches it. Otherwise no action here really. \n')
-        s.close()
         return False
+
+    finally:
+        # de-allocate the resource        
+        s.close()
 
     # following won't really apply here.
     # except socket.herror as he_ex:
