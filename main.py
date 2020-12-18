@@ -7,7 +7,7 @@ __author__ = "Saman Rajaei"
 __version__ = "0.1.0"
 __license__ = "MIT"
 
-import errno, os, socket, time
+import errno, os, socket, sys, time
 from logzero import logger
 # from telnetlib import Telnet
 
@@ -29,6 +29,8 @@ I quite liked the thinking behind:
     "... Avoid DNS resolution (we will need an IP that is well-known and guaranteed to be available for most of the time)
      Avoid application layer connections (connecting to an HTTP/FTP/IMAP service)
      Avoid calls to external utilities from Python or other language of choice (we need to come up with a language-agnostic solution that doesn't rely on third-party solutions)"
+
+Function will exit with appropriate code if an issue happens but it won't exit with 0 if all ok, since I'm interested in seeing it carry on in a loop
 """
 def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = reuqest_timeout_secs):
     """
@@ -55,38 +57,43 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         # extended it to other potentual causes - cleaner than messing with the string itself IMO
         if so_ex.errno == errno.ECONNREFUSED:
             logger.info('Unlikely that remote host has gone down therefore probably internet connectivity issue, check with a ping or webpage check to ensure. \n')
+            sys.exit(errno.ECONNREFUSED)
 
         elif so_ex.errno == errno.ENETDOWN:
             logger.info('Appears network is down, most likely an outbound connection issue, check whether any traffic leaving the routers/NAT. \n')
+            sys.exit(errno.ENETDOWN)
 
         elif so_ex.errno == errno.ENETUNREACH:
             logger.info('Appears no network path to the host, most likely an internal network issue, check whether the path to the routers/NAT still in place. \n')
+            sys.exit(errno.ENETUNREACH)
 
         elif so_ex.errno == errno.ENOTCONN:
             logger.info('Appears socket is not connected, remote host might have shut down our TCP connection, check whether we can create a new connection with netcat or /dev/tcp/. \n')
+            sys.exit(errno.ENOTCONN)
 
         elif so_ex.errno == errno.ESHUTDOWN:
             logger.info('Appears remote host has shut down our TCP connection, check whether we can create a new connection with netcat or /dev/tcp/. \n')
+            sys.exit(errno.ESHUTDOWN)
 
         elif so_ex.errno == errno.EHOSTDOWN:
-            # icmp and telnet are different protocols than TCP so not the most reliable but for variety
+            # icmp and telnet are different protocols than TCP so not the most reliable but for variety..
             logger.info('Appears eventhough path to host was found, that the remote host has gone down, check whether we can create a new connection with a ping or telnet. \n')
+            sys.exit(errno.EHOSTDOWN)
 
         elif so_ex.errno == errno.EHOSTUNREACH:
             logger.info('Appears no network path to the host was found, do a traceroute to veirfy. \n')
+            sys.exit(errno.EHOSTUNREACH)
 
         else:
             logger.info('Woah... don\'t know about this one I\'m afraid... \n')
-
-        return False
+            sys.exit(-1)
 
     except socket.timeout as to_ex:
         logger.error('socket faced timeout exception: ' + str(to_ex))
         logger.info('Similarly, check whether a new request reaches it. Otherwise no action here really. \n')
-        return False
 
     finally:
-        # de-allocate the resource        
+        # de-allocate the resource
         s.close()
 
     # following won't really apply here.
@@ -102,6 +109,7 @@ def main():
 
     logger.info("Starting up...")
 
+    # do forever until an issue happens, in which case it will exit
     while True:
         is_able_to_connect()
         # time.sleep(3)
