@@ -56,7 +56,7 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
         # got first line from https://stackoverflow.com/questions/5161167/python-handling-specific-error-codes
         # extended it to other potentual causes - cleaner than messing with the string itself IMO
         if so_ex.errno == errno.ECONNREFUSED:
-            logger.info('Unlikely that remote host has gone down therefore probably internet connectivity issue, check with a ping or webpage check to ensure. \n')
+            logger.info('Unlikely that remote host has gone down therefore probably internet connectivity issue, do a ping or a webpage check to ensure. \n')
             sys.exit(errno.ECONNREFUSED)
 
         elif so_ex.errno == errno.ENETDOWN:
