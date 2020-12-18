@@ -14,6 +14,13 @@ WORKDIR app/
 RUN pip install -r requirements.txt
 
 #
+### set some runtime envs, NOT WORKING !!!!
+#
+ENV _REQ_TIMEOUT_SECS=
+ENV _PREFERRED_HOST=
+ENV _PREFERRED_PORT=
+
+#
 ### now copy the rest in and let's run a unit test
 ### there as well as part of the build to make sure
 ### we didn't break anything
@@ -26,4 +33,4 @@ RUN pytest
 #
 ### now execute the main
 #
-CMD [ "python", "./main.py" ]
+ENTRYPOINT ["/bin/bash", "-c", "python ./main.py"]
