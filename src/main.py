@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Simple script to check connectivity status and raise potential issues
+"""
 
 __author__ = "Saman Rajaei"
 __version__ = "0.1.0"
@@ -7,35 +10,27 @@ __license__ = "MIT"
 import errno, os, socket, sys, time
 from logzero import logger
 
-""" load in env vars, set sensible defaults for it to need minimal config to run (check Known Issues in README)
-reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
-preferred_host = os.getenv('_PREFERRED_HOST', '1.1.1.1')
-preferred_port = os.getenv('_PREFERRED_PORT', 80)
-# preferred_port = int(os.environ['_PREFERRED_PORT'])
-how_frequently_secs = os.getenv('_CHECK_FREQUENCY_SECS', 1)
-"""
+# # load in env vars, set sensible defaults for it to need minimal config to run => check Known Issues in README
+# reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
+# preferred_host = os.getenv('_PREFERRED_HOST', '1.1.1.1')
+# preferred_port = os.getenv('_PREFERRED_PORT', 80)
+# # preferred_port = int(os.environ['_PREFERRED_PORT'])
+# how_frequently_secs = os.getenv('_CHECK_FREQUENCY_SECS', 1)
 
 reuqest_timeout_secs = 5
 preferred_host = '1.1.1.1'
 preferred_port = 80
 how_frequently_secs = 3
 
-"""
-Right, skeleton of the function stolen from this answer: https://stackoverflow.com/a/33117579 and added my own tweaks to it.
-I quite liked the thinking behind:
-
-    "... Avoid DNS resolution (we will need an IP that is well-known and guaranteed to be available for most of the time)
-     Avoid application layer connections (connecting to an HTTP/FTP/IMAP service)
-     Avoid calls to external utilities from Python or other language of choice (we need to come up with a language-agnostic solution that doesn't rely on third-party solutions)"
-
-Function will exit with appropriate code if an issue happens but it won't exit with 0 if all ok, since I'm interested in seeing it carry on in a loop
-"""
 def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = reuqest_timeout_secs):
     """
+    will attempt to establish a socket to remote host, exits with appropriate code if an issue happens
+    but it won't exit with 0 if all ok, since I'm interested in seeing it carry on in a loop
+
     defaults:
-        Host: 1.1.1.1 (While above link suggests Google, I personally prefer CloudFlare's free public DNS)
+        Host: 1.1.1.1 (I personally prefer CloudFlare's free public DNS, have made configurable)
         OpenPort: 80/tcp
-        Service: domain (DNS/TCP)
+        Service: domain (TCP)
     """
     time.sleep(how_frequently_secs)
     try:
@@ -94,7 +89,7 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
             # de-allocate the resource
             s.close()
 
-    # following won't really apply here.
+    # following options are provided by the module but won't really apply here.
     # except socket.herror as he_ex:
     #     logger.warning(he_ex)
     #     return False
@@ -110,14 +105,14 @@ def main():
     # do forever until an issue happens, in which case it will exit
     while True:
         is_able_to_connect()
+
         # time.sleep(3)
-        """
-        You could sleep here but IMO it's cleaner to have inside the function
-        stack itself, since like that it will be agnostic to the execution time of the function.
-        You could also introduce a scheduler with a lock if you want to get very serious
-        something like this: https://docs.python.org/3/library/sched.html
-        but this should be good enough for this purpose
-        """
+
+        # You could sleep here but IMO it's cleaner to have inside the function
+        # stack itself, since like that it will be agnostic to the execution time of the function.
+        # You could also introduce a scheduler with a lock if you want to get very serious
+        # something like this: https://docs.python.org/3/library/sched.html
+        # but this should be good enough for this purpose
 
 if __name__ == "__main__":
     main()
