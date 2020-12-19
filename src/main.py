@@ -78,7 +78,7 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
             sys.exit(errno.EHOSTDOWN)
 
         elif so_ex.errno == errno.EHOSTUNREACH:
-            logger.info('Appears no network path to the host was found, do a traceroute to veirfy. \n')
+            logger.info('Appears no network path to the host was found, check outbound firewall rules or do a traceroute to veirfy. \n')
             sys.exit(errno.EHOSTUNREACH)
 
         else:
@@ -91,7 +91,7 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
 
     finally:
         if s is not None:
-            # de-allocate the resource            
+            # de-allocate the resource
             s.close()
 
     # following won't really apply here.

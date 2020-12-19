@@ -14,7 +14,7 @@ WORKDIR app/
 RUN pip install -r requirements.txt
 
 #
-### set some runtime envs, NOT WORKING !!!!
+### set some blank envs to be at runtime
 #
 ENV _REQ_TIMEOUT_SECS=
 ENV _PREFERRED_HOST=
