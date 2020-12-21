@@ -10,7 +10,7 @@ __license__ = "MIT"
 import errno, os, socket, sys, time
 from logzero import logger
 
-# # load in env vars, set sensible defaults for it to need minimal config to run => check Known Issues in README
+## load in env vars, set sensible defaults for it to need minimal config to run => check Known Issues in README
 # reuqest_timeout = os.getenv('_REQ_TIMEOUT_SECS', 1)
 # preferred_host = os.getenv('_PREFERRED_HOST', '1.1.1.1')
 # preferred_port = os.getenv('_PREFERRED_PORT', 80)
@@ -45,8 +45,8 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
     except socket.error as so_ex:
         logger.error('socket faced an exception, high level: ' + str(so_ex))
 
-        # got first line from https://stackoverflow.com/questions/5161167/python-handling-specific-error-codes
-        # extended it to other potentual causes - cleaner than messing with the string itself IMO
+        ## got first line from https://stackoverflow.com/questions/5161167/python-handling-specific-error-codes
+        ## extended it to other potentual causes - cleaner than messing with the string itself IMO
         if so_ex.errno == errno.ECONNREFUSED:
             logger.info('Unlikely that remote host has gone down therefore probably internet connectivity issue, do a ping or a webpage check to ensure. \n')
             sys.exit(errno.ECONNREFUSED)
@@ -82,14 +82,15 @@ def is_able_to_connect(host = preferred_host, port = preferred_port, timeout = r
 
     except socket.timeout as to_ex:
         logger.error('socket faced timeout exception: ' + str(to_ex))
-        logger.info('Similarly, check whether a new request reaches it. Otherwise no action here really. \n')
+        logger.info('Similarly, check whether a new request reaches remote host. Otherwise no action here really. \n')
 
     finally:
         if s is not None:
             # de-allocate the resource
             s.close()
 
-    # following options are provided by the module but won't really apply here.
+    ## following options are provided by the socket module but won't really
+    ## apply here since we're not dealing with domain names
     # except socket.herror as he_ex:
     #     logger.warning(he_ex)
     #     return False
@@ -108,11 +109,11 @@ def main():
 
         # time.sleep(3)
 
-        # You could sleep here but IMO it's cleaner to have inside the function
-        # stack itself, since like that it will be agnostic to the execution time of the function.
-        # You could also introduce a scheduler with a lock if you want to get very serious
-        # something like this: https://docs.python.org/3/library/sched.html
-        # but this should be good enough for this purpose
+        ## You could sleep here but IMO it's cleaner to have inside the function
+        ## stack itself, since like that it will be agnostic to the execution time of the function.
+        ## You could also introduce a scheduler with a lock if you want to get very serious
+        ## something like this: https://docs.python.org/3/library/sched.html
+        ## but this should be good enough for this purpose
 
 if __name__ == "__main__":
     main()
